@@ -14,7 +14,7 @@ defmodule Back.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: [:cowboy, :plug],
+      applications: [:cowboy, :plug, :timex],
       extra_applications: [:logger]
     ]
   end
@@ -25,7 +25,8 @@ defmodule Back.Mixfile do
       {:cowboy, "~> 1.1"},
       {:plug, "~> 1.0"},
       {:poison, "~> 3.1"},
-      {:flow, "~> 0.12.0"}
+      {:flow, "~> 0.12.0"},
+      {:timex, "~> 3.1"}
     ]
   end
 end

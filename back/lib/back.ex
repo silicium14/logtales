@@ -1,6 +1,7 @@
 defmodule Back do
   @file_ Application.get_env(:back, :file)
   @regex Application.get_env(:back, :regex)
+  @date_format Application.get_env(:back, :date_format)
 
   require Logger
 
@@ -19,8 +20,8 @@ defmodule Back do
 
   def parse_event_date(event) do
     event
-    |> Map.update!("date", fn str -> DateTime.from_iso8601 "#{str}+00" end)
-    |> Map.update!("date", fn {:ok, date, _} -> date end)
+    |> Map.update!("date", fn str -> Timex.parse str, @date_format end)
+    |> Map.update!("date", fn {:ok, date} -> date end)
   end
 
   def keep_index({index, value}, function) do
