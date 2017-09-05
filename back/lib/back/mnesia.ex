@@ -62,7 +62,7 @@ defmodule Back.Mnesia do
   end
 
   def mnesia_event({index, event}) do
-    {Event, index, DateTime.to_unix(event["date"]), event["item"], event["content"]}
+    {Event, index, Timex.to_unix(event["date"]), event["item"], event["content"]}
   end
 
   def load(flow) do

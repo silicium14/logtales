@@ -3,8 +3,8 @@
 Logtales lets you visualize log events grouped per item on a timeline. Let it tell you the tales of your application, found in their logs.
 
 ## Dependencies
-- Elixir 1.5
-- Elm 0.18
+- Elixir 1.5, see `back/mix.exs` for packages
+- Elm 0.18, see `front/elm-package.json` for packages
 
 ## How to use
 - Configure the backend (see Configure section)
@@ -27,11 +27,15 @@ the regex may be
 ~r/^\[(?<date>\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d)\] \[(?<item>[^\]]+)\] (?<content>.*)/
 ```
 The item can be anything meaningful for you to group events when plotting them on a timeline. Events of the same item will be displayed on one line, there will be one line per item. For example if your logs are authentication logs and the application prints some events with a username in it, you can use the username as item. As a result there will be one line per username on the timeline plot.
+- Set the `date_format` value in the `:back` config in `back/config/config.exs` to the [Timex format](https://hexdocs.pm/timex/Timex.Format.DateTime.Formatters.Default.html#content) to use to parse dates captured by the `regex`.
 
 ## Run in development mode
 Open one terminal for the backend
 ```
 cd back
+# only the first time
+mix deps.get
+
 iex -S mix
 # in IEx
 Back.Server.start
