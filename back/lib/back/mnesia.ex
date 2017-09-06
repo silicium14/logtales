@@ -65,9 +65,9 @@ defmodule Back.Mnesia do
     {Event, index, Timex.to_unix(event["date"]), event["item"], event["content"]}
   end
 
-  def load(flow) do
+  def load(events) do
     Logger.debug "Loading events into Mnesia database"
-    flow
+    events
     |> Flow.map(&mnesia_event/1)
     |> Flow.map(&:mnesia.dirty_write/1)
     |> Flow.run()

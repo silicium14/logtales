@@ -18,25 +18,21 @@ defmodule Back do
   def filter_flow({_, event}) when event == nil, do: false
   def filter_flow(_), do: true
 
-  def parse_event_date(event) do
+  def parse_event_date(event, date_format) do
     event
-    |> Map.update!("date", fn str -> Timex.parse str, @date_format end)
+    |> Map.update!("date", fn str -> Timex.parse str, date_format end)
     |> Map.update!("date", fn {:ok, date} -> date end)
   end
 
-  def keep_index({index, value}, function) do
-    {index, function.(value)}
-  end
-
-  def load() do
+  def load(file \\ @file_, regex \\ @regex, date_format \\ @date_format) do
     Back.Mnesia.resetdb
 
-    flow = File.stream!(@file_, [:utf8, :read])
+    flow = File.stream!(file, [:utf8, :read])
     |> Stream.transform(0, fn event, index -> {[{index, event}], index+1} end)
     |> Flow.from_enumerable()
-    |> Flow.map(&keep_index(&1, fn string -> Regex.named_captures(@regex, string) end))
+    |> Flow.map(fn {index, string} -> {index, Regex.named_captures(regex, string)} end)
     |> Flow.filter(&filter_flow/1)
-    |> Flow.map(fn event -> keep_index(event, &parse_event_date/1) end)
+    |> Flow.map(fn {index, event} -> {index, parse_event_date(event, date_format)} end)
 
     {duration, _} = :timer.tc(Back.Mnesia, :load, [flow])
     Logger.debug "Loading finished in #{duration / 1_000_000} s"

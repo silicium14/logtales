@@ -1,0 +1,3 @@
+[2017-01-01 00:00:01] [an item] This is the first event
+[2017-01-01 00:01:00] [another item] This is the second event
+[2017-01-01 02:00:00] [an item] This is the third event
