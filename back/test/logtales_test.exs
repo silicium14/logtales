@@ -1,18 +1,18 @@
-defmodule BackTest do
+defmodule LogtalesTest do
   use ExUnit.Case
-  doctest Back
+  doctest Logtales
 
   test "Events are retrieved after being loaded into database" do
     # Arrange
-    Back.load(
+    Logtales.load(
       "test/fake_log.txt",
       ~r/^\[(?<date>\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d)\] \[(?<item>[^\]]+)\] (?<content>.*)/,
       "{YYYY}-{0M}-{0D} {h24}:{m}:{s}",
-      Back.Db.Mnesia
+      Logtales.Db.Mnesia
     )
 
     # Act
-    events = Back.events(
+    events = Logtales.events(
       DateTime.from_naive!(~N[2017-01-01 00:00:01], "Etc/UTC"),
       DateTime.from_naive!(~N[2017-01-01 02:00:00], "Etc/UTC")
     )

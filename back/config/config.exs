@@ -6,7 +6,7 @@ config :logger, backends: [:console]
 # regex: a regex used for parsing and filtering log events.
 #   It must have the three named capture groups date, item and content.
 # date_format: the Timex format to use to parse dates captured by the `regex`.
-config :back,
+config :logtales,
   file: "../tmp/events.log",
   regex: ~r/^\[(?<date>\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d)\] \[(?<item>[^\]]+)\] (?<content>.*)/,
   date_format: "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"

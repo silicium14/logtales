@@ -1,16 +1,16 @@
-defmodule Back do
-  @file_ Application.get_env(:back, :file)
-  @regex Application.get_env(:back, :regex)
-  @date_format Application.get_env(:back, :date_format)
+defmodule Logtales do
+  @file_ Application.get_env(:logtales, :file)
+  @regex Application.get_env(:logtales, :regex)
+  @date_format Application.get_env(:logtales, :date_format)
 
   require Logger
 
   # Business
-  def events(start, end_, database \\ Back.Db.Mnesia) do
+  def events(start, end_, database \\ Logtales.Db.Mnesia) do
     database.events(start, end_)
   end
 
-  def range(database \\ Back.Db.Mnesia) do
+  def range(database \\ Logtales.Db.Mnesia) do
     database.range()
   end
   
@@ -24,7 +24,7 @@ defmodule Back do
     |> Map.update!("date", fn {:ok, date} -> date end)
   end
 
-  def load(file \\ @file_, regex \\ @regex, date_format \\ @date_format, database \\ Back.Db.Mnesia) do
+  def load(file \\ @file_, regex \\ @regex, date_format \\ @date_format, database \\ Logtales.Db.Mnesia) do
     database.resetdb
 
     flow = File.stream!(file, [:utf8, :read])

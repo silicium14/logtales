@@ -1,6 +1,6 @@
-defmodule Back.Server do
+defmodule Logtales.Server do
     @moduledoc """
-    Documentation for Back.
+    Documentation for Logtales.Server.
     """
 
     require Logger
@@ -19,13 +19,13 @@ defmodule Back.Server do
       start = unixSecondsStringToDate(conn.query_params["start"])
       end_ = unixSecondsStringToDate(conn.query_params["end"])
       Logger.debug "start: #{start}, end: #{end_}"
-      Back.events(start, end_)
+      Logtales.events(start, end_)
       |> Enum.map(&date_to_unix(&1))
       |> json_response(conn)
     end
 
     get "/range" do
-      Back.range
+      Logtales.range
       |> json_response(conn)
     end
   

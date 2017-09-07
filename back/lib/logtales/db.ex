@@ -1,4 +1,4 @@
-defmodule Back.Db do
+defmodule Logtales.Db do
   @callback resetdb() :: none()  
   @callback load(events :: Flow.t) :: none()
   @callback range() :: map()

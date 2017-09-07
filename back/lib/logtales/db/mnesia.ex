@@ -1,5 +1,5 @@
-defmodule Back.Db.Mnesia do
-  @behaviour Back.Db
+defmodule Logtales.Db.Mnesia do
+  @behaviour Logtales.Db
   require Logger
   
   # Business
