@@ -51,3 +51,10 @@ The frontend should be available at http://localhost:8000.
 
 ## Load the log file into database
 In IEx console: `Logtales.load`
+
+## Run the tests
+### Backend
+```bash
+cd back
+mix test
+```
