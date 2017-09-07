@@ -3,12 +3,12 @@ defmodule BackTest do
   doctest Back
 
   test "Events are retrieved after being loaded into database" do
-    # TODO : use a different mnesia directory for testing
     # Arrange
     Back.load(
       "test/fake_log.txt",
       ~r/^\[(?<date>\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d)\] \[(?<item>[^\]]+)\] (?<content>.*)/,
-      "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"
+      "{YYYY}-{0M}-{0D} {h24}:{m}:{s}",
+      Back.Db.Mnesia
     )
 
     # Act

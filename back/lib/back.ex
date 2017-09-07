@@ -6,12 +6,12 @@ defmodule Back do
   require Logger
 
   # Business
-  def events(start, end_) do
-    Back.Mnesia.events(start, end_)
+  def events(start, end_, database \\ Back.Db.Mnesia) do
+    database.events(start, end_)
   end
 
-  def range() do
-    Back.Mnesia.range()
+  def range(database \\ Back.Db.Mnesia) do
+    database.range()
   end
   
   # Loading file
@@ -24,8 +24,8 @@ defmodule Back do
     |> Map.update!("date", fn {:ok, date} -> date end)
   end
 
-  def load(file \\ @file_, regex \\ @regex, date_format \\ @date_format) do
-    Back.Mnesia.resetdb
+  def load(file \\ @file_, regex \\ @regex, date_format \\ @date_format, database \\ Back.Db.Mnesia) do
+    database.resetdb
 
     flow = File.stream!(file, [:utf8, :read])
     |> Stream.transform(0, fn event, index -> {[{index, event}], index+1} end)
@@ -34,7 +34,7 @@ defmodule Back do
     |> Flow.filter(&filter_flow/1)
     |> Flow.map(fn {index, event} -> {index, parse_event_date(event, date_format)} end)
 
-    {duration, _} = :timer.tc(Back.Mnesia, :load, [flow])
+    {duration, _} = :timer.tc(database, :load, [flow])
     Logger.debug "Loading finished in #{duration / 1_000_000} s"
   end
 
