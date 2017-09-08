@@ -34,11 +34,12 @@ defmodule Logtales.Server do
     end
 
     defp json_response(data, conn) do
+      Logger.debug(inspect(data))
       data
       |> Poison.encode!
       |> (
         fn data -> resp(
-          Plug.Conn.put_resp_header(conn, "Access-Control-Allow-Origin", "*"),
+          Plug.Conn.put_resp_header(conn, "access-control-allow-origin", "*"),
           200, data
         ) end
       ).()

@@ -5,23 +5,12 @@ defmodule Logtales do
 
   require Logger
 
-  # Business
   def events(start, end_, database \\ Logtales.Db.Mnesia) do
     database.events(start, end_)
   end
 
   def range(database \\ Logtales.Db.Mnesia) do
     database.range()
-  end
-  
-  # Loading file
-  def filter_flow({_, event}) when event == nil, do: false
-  def filter_flow(_), do: true
-
-  def parse_event_date(event, date_format) do
-    event
-    |> Map.update!("date", fn str -> Timex.parse str, date_format end)
-    |> Map.update!("date", fn {:ok, date} -> date end)
   end
 
   def load(file \\ @file_, regex \\ @regex, date_format \\ @date_format, database \\ Logtales.Db.Mnesia) do
@@ -34,8 +23,18 @@ defmodule Logtales do
     |> Flow.filter(&filter_flow/1)
     |> Flow.map(fn {index, event} -> {index, parse_event_date(event, date_format)} end)
 
+    Logger.debug "Loading events from file #{file}"    
     {duration, _} = :timer.tc(database, :load, [flow])
     Logger.debug "Loading finished in #{duration / 1_000_000} s"
+  end
+  
+  defp filter_flow({_, event}) when event == nil, do: false
+  defp filter_flow(_), do: true
+
+  defp parse_event_date(event, date_format) do
+    event
+    |> Map.update!("date", fn str -> Timex.parse str, date_format end)
+    |> Map.update!("date", fn {:ok, date} -> date end)
   end
 
   # Benchmarking
