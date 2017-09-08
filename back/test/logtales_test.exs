@@ -2,7 +2,7 @@ defmodule LogtalesTest do
   use ExUnit.Case
   doctest Logtales
 
-  test "Events are retrieved after being loaded into database" do
+  test "events are retrieved after being loaded into database" do
     # Arrange
     Logtales.load(
       "test/fake_log.txt",
@@ -59,6 +59,25 @@ defmodule LogtalesTest do
         "date" => DateTime.from_naive!(~N[2017-01-01 00:01:00], "Etc/UTC"),
         "item" => "another item", "content" => "This is the second event"
       }
-    ]) 
+    ])
+  end
+
+  test "the range of events corresponds to the events loaded" do
+    # Arrange
+    Logtales.load(
+      "test/fake_log.txt",
+      ~r/^\[(?<date>\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d)\] \[(?<item>[^\]]+)\] (?<content>.*)/,
+      "{YYYY}-{0M}-{0D} {h24}:{m}:{s}",
+      Logtales.Db.Mnesia
+    )
+
+    # Act
+    range = Logtales.range()
+
+    # Assert
+    assert range == %{
+      start: DateTime.from_naive!(~N[2017-01-01 00:00:01], "Etc/UTC"),
+      end: DateTime.from_naive!(~N[2017-01-01 02:00:00], "Etc/UTC")
+    }
   end
 end
