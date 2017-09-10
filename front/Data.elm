@@ -25,15 +25,11 @@ rangeDecoder =
 dateTimestampDecoder: Json.Decode.Decoder Date.Date
 dateTimestampDecoder =
     let
-      convert: String -> Json.Decode.Decoder Date.Date
-      convert raw =
-        case (String.toFloat raw) of
-          Ok time ->
-            time*Time.second |> Date.fromTime |> Json.Decode.succeed
-          Err error ->
-            Json.Decode.fail error
+      convert: Float -> Json.Decode.Decoder Date.Date
+      convert time =
+          time*Time.second |> Date.fromTime |> Json.Decode.succeed
     in
-      Json.Decode.string |> Json.Decode.andThen convert
+      Json.Decode.float |> Json.Decode.andThen convert
 
 url: String
 url =
