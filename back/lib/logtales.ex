@@ -21,9 +21,10 @@ defmodule Logtales do
     |> Flow.from_enumerable()
     |> Flow.map(fn {index, string} -> {index, Regex.named_captures(regex, string)} end)
     |> Flow.filter(&filter_flow/1)
+    |> Flow.map(fn {index, event} -> {index, atomize_map_keys(event)} end)
     |> Flow.map(fn {index, event} -> {index, parse_event_date(event, date_format)} end)
 
-    Logger.debug "Loading events from file #{file}"    
+    Logger.debug "Loading events from file #{file}"
     {duration, _} = :timer.tc(database, :load, [flow])
     Logger.debug "Loading finished in #{duration / 1_000_000} s"
   end
@@ -31,10 +32,14 @@ defmodule Logtales do
   defp filter_flow({_, event}) when event == nil, do: false
   defp filter_flow(_), do: true
 
+  defp atomize_map_keys(map) do
+    for {key, val} <- map, into: %{}, do: {String.to_atom(key), val}
+  end
+
   defp parse_event_date(event, date_format) do
     event
-    |> Map.update!("date", fn str -> Timex.parse str, date_format end)
-    |> Map.update!("date", fn {:ok, date} -> date end)
+    |> Map.update!(:date, fn str -> Timex.parse str, date_format end)
+    |> Map.update!(:date, fn {:ok, date} -> date end)
   end
 
   # Benchmarking

@@ -1,13 +1,24 @@
 defmodule Logtales.Db.Mnesia do
   @behaviour Logtales.Db
   require Logger
-  
+
   def resetdb() do
     Logger.debug "resetdb"
     dropdb()
     createdb()
   end
 
+  @doc """
+  Loads events in the Mnesia database.
+  The argument is a Flow of events with and index:
+  [
+    {0, %{date: DateTime.t, item: String.t, content: String.t}},
+    {1, %{date: DateTime.t, item: String.t, content: String.t}},
+    ...
+  ]
+  The only constraint on indexes are uniqueness.
+  """
+  @spec load(events :: Flow.t) :: none()
   def load(events) do
     Logger.debug "Loading events into Mnesia database"
     events
@@ -70,14 +81,14 @@ defmodule Logtales.Db.Mnesia do
 
   # Private functions
   defp mnesia_event({index, event}) do
-    {Event, index, Timex.to_unix(event["date"]), event["item"], event["content"]}
+    {Event, index, Timex.to_unix(event[:date]), event[:item], event[:content]}
   end
 
   defp event_record_to_map([_, timestamp, item, content]) do
     %{
-      "date" => DateTime.from_unix!(timestamp),
-      "item" => item,
-      "content" => content
+      :date => DateTime.from_unix!(timestamp),
+      :item => item,
+      :content => content
     }
   end
 end

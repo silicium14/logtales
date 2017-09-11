@@ -20,16 +20,16 @@ defmodule LogtalesTest do
     # Assert
     assert MapSet.new(events) == MapSet.new([
       %{
-        "date" => DateTime.from_naive!(~N[2017-01-01 00:00:01], "Etc/UTC"),
-        "item" => "an item", "content" => "This is the first event"
+        :date => DateTime.from_naive!(~N[2017-01-01 00:00:01], "Etc/UTC"),
+        :item => "an item", :content => "This is the first event"
       },
       %{
-        "date" => DateTime.from_naive!(~N[2017-01-01 00:01:00], "Etc/UTC"),
-        "item" => "another item", "content" => "This is the second event"
+        :date => DateTime.from_naive!(~N[2017-01-01 00:01:00], "Etc/UTC"),
+        :item => "another item", :content => "This is the second event"
       },
       %{
-        "date" => DateTime.from_naive!(~N[2017-01-01 02:00:00], "Etc/UTC"),
-        "item" => "an item", "content" => "This is the third event"
+        :date => DateTime.from_naive!(~N[2017-01-01 02:00:00], "Etc/UTC"),
+        :item => "an item", :content => "This is the third event"
       }
     ])
   end
@@ -46,18 +46,19 @@ defmodule LogtalesTest do
     # Act
     events = Logtales.events(
       DateTime.from_naive!(~N[2017-01-01 00:00:01], "Etc/UTC"),
-      DateTime.from_naive!(~N[2017-01-01 02:00:00], "Etc/UTC")
+      DateTime.from_naive!(~N[2017-01-01 02:00:00], "Etc/UTC"),
+      Logtales.Db.Mnesia
     )
 
     # Assert
     assert MapSet.new(events) == MapSet.new([
       %{
-        "date" => DateTime.from_naive!(~N[2017-01-01 00:00:01], "Etc/UTC"),
-        "item" => "an item", "content" => "This is the first event"
+        :date => DateTime.from_naive!(~N[2017-01-01 00:00:01], "Etc/UTC"),
+        :item => "an item", :content => "This is the first event"
       },
       %{
-        "date" => DateTime.from_naive!(~N[2017-01-01 00:01:00], "Etc/UTC"),
-        "item" => "another item", "content" => "This is the second event"
+        :date => DateTime.from_naive!(~N[2017-01-01 00:01:00], "Etc/UTC"),
+        :item => "another item", :content => "This is the second event"
       }
     ])
   end

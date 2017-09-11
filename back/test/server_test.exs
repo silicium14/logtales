@@ -1,7 +1,6 @@
 defmodule ServerTest do
   use ExUnit.Case
   use Plug.Test
-  require IEx
   doctest Logtales.Server
 
   @router_options Logtales.Server.init([])
