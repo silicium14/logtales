@@ -1,4 +1,6 @@
 defmodule Logtales do
+  use Application
+
   @file_ Application.get_env(:logtales, :file)
   @regex Application.get_env(:logtales, :regex)
   @date_format Application.get_env(:logtales, :date_format)
@@ -57,5 +59,12 @@ defmodule Logtales do
       lines: lines,
       lines_per_second: Float.round(lines/seconds)
     }
+  end
+
+  def start(_type, _args) do
+    Logtales.load
+    r = Logtales.Server.start
+    Logger.info("Logtales started")
+    r
   end
 end
