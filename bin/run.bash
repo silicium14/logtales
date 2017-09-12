@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Starts the elixir backend, the elm frontend (elm-reactor)
+# and opens the application URL
+
 cd back
 mix run --no-halt &
 BACK_PID=$!

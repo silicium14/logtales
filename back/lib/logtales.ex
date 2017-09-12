@@ -62,7 +62,6 @@ defmodule Logtales do
   end
 
   def start(_type, _args) do
-    Logtales.load
     r = Logtales.Server.start
     Logger.info("Logtales started")
     r
