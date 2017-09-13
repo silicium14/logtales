@@ -9,7 +9,7 @@ config :logger, backends: [:console]
 #   see Timex.Format.DateTime.Formatters.Default
 config :logtales,
   file: "nasa_ksc_www_Jul95_subset.log",
-  regex: ~r/^(?<origin>[^\s]+) - - \[(?<date>[^\s]+).*\] (?<content>[^\/]+(?<item>\/[^\/\s]*).*)/,
+  regex: ~r/^.*\[(?<date>[^\s]+).*\] (?<content>[^\/]+(?<item>\/[^\/\s]*).*)/,
   date_format: "{0D}/{Mshort}/{YYYY}:{h24}:{m}:{s}"  
 
 config :mnesia,
