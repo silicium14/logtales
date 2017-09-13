@@ -2,11 +2,14 @@
 
 Logtales lets you visualize log events grouped per item on a timeline. Let it tell you the tales of your application, found in their logs.
 
+![Logtales screenshot](logtales.png)
+
 ## Dependencies
 - Elixir 1.5, see `back/mix.exs` for packages
 - Elm 0.18, see `front/elm-package.json` for packages
 
 ## Run the demo example
+Displays events from a subset of the [July 1995 NASA Kennedy Space Center WWW server log](http://ita.ee.lbl.gov/html/contrib/NASA-HTTP.html).
 ```bash
 bin/demo.bash
 ```
