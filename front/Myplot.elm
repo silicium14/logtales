@@ -251,7 +251,7 @@ plotCustomizations items_ys show_labels plot_start_date plot_end_date =
         (Date.Format.format "%d/%m/%Y %H:%M:%S" plot_end_date)
       , flipAnchor = False
       }
-    , height = max (10*(Dict.size items_ys)) 60
+    , height = max (12*(Dict.size items_ys)) 60
     , junk = if show_labels then items_labels show_labels items_ys x_start else (\_ -> [])
     }
 

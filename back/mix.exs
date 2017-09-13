@@ -14,6 +14,7 @@ defmodule Logtales.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {Logtales, []},
       applications: [:cowboy, :plug, :timex],
       extra_applications: [:logger]
     ]

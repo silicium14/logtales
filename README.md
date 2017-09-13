@@ -2,14 +2,24 @@
 
 Logtales lets you visualize log events grouped per item on a timeline. Let it tell you the tales of your application, found in their logs.
 
+![Logtales screenshot](logtales.png)
+
 ## Dependencies
 - Elixir 1.5, see `back/mix.exs` for packages
 - Elm 0.18, see `front/elm-package.json` for packages
 
+## Run the demo example
+Displays events from a subset of the [July 1995 NASA Kennedy Space Center WWW server log](http://ita.ee.lbl.gov/html/contrib/NASA-HTTP.html).
+```bash
+bin/demo.bash
+```
+Note: this resets the existing events database and retrieves Elixir backend dependencies.
+
 ## How to use
 - Configure the backend (see Configure section)
-- Start the backend and the frontend (see Run in development mode section)
-- Load log file into database (see Load the log file into database section)
+- Get backend dependencies with `cd back; mix deps.get; cd ..` (This unnecessary if `bin/demo.bash` was run previously)
+- Load log file into database with `bin/load.bash`
+- Start the backend and the frontend with `bin/run.bash`
 - Open http://localhost:8000
 - Click on `Fetch range` to get available date range
 - Click on `Fetch data` to get events and plot them
@@ -29,28 +39,22 @@ the regex may be
 The item can be anything meaningful for you to group events when plotting them on a timeline. Events of the same item will be displayed on one line, there will be one line per item. For example if your logs are authentication logs and the application prints some events with a username in it, you can use the username as item. As a result there will be one line per username on the timeline plot.
 - Set the `date_format` value in the `:logtales` config in `back/config/config.exs` to the [Timex format](https://hexdocs.pm/timex/Timex.Format.DateTime.Formatters.Default.html#content) to use to parse dates captured by the `regex`.
 
-## Run in development mode
-Open one terminal for the backend
-```
+## Start the application
+```bash
+# If Elixir dependencies were never retrieved, first do
 cd back
-# only the first time
 mix deps.get
+cd ..
 
-iex -S mix
-# in IEx
-Logtales.Server.start
+bin/run.bash
 ```
-The backend server should be running at http://localhost:4000.
-
-Open one terminal for the frontend
-```
-cd front
-elm-reactor
-```
-The frontend should be available at http://localhost:8000.
+This starts the backend at http://localhost:4000 and the frontend at http://localhost:8000.
 
 ## Load the log file into database
-In IEx console: `Logtales.load`
+This resets the existing database and loads events from the configured file
+```bash
+bin/load.bash
+```
 
 ## Run the tests
 ### Backend

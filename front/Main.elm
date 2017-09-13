@@ -120,7 +120,7 @@ update msg model =
           { model |
             info = "New range received"
           , range = result
-          , start = add result.end (-48*Time.hour)
+          , start = add result.end (-0.5*Time.hour)
           , end = result.end
           }
         , Cmd.none
