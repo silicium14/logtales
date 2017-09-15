@@ -215,16 +215,16 @@ myseries =
 
 time_labels: String -> String -> List Plot.LabelCustomizations
 time_labels start end =
-  let
-    attributes = [ Svg.Attributes.fontSize "8" ]
-  in
-    List.map
-      (\label -> 
-        { view = Plot.viewLabel attributes label.text
-        , position = label.position
-        }
-      )
-      [{text = start, position = 0.0}, {text = end, position = 1.0}]
+  List.map2
+    (\label text_anchor -> 
+      { view = Plot.viewLabel
+        [Svg.Attributes.fontSize "8", text_anchor]
+        label.text
+      , position = label.position
+      }
+    )
+    [{text = start, position = 0.0}, {text = end, position = 1.0}]
+    [Svg.Attributes.textAnchor "start", Svg.Attributes.textAnchor "end"]
 
 plotCustomizations : 
   Dict.Dict String Float

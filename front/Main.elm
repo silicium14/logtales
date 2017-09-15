@@ -154,7 +154,6 @@ view model =
   div [] [
     stylesheet
     , title
-    , br [] []
     , button [ Html.Events.onClick Types.FetchRange ] [ text "Fetch range" ]
     , button [ Html.Events.onClick Types.Fetch ] [ text "Fetch Data" ]
     , button [ Html.Events.onClick Types.ToggleLabels ] [ text "Toggle labels" ]
@@ -191,10 +190,15 @@ view model =
 
 title: Html msg
 title =
-  div [ Html.Attributes.style [
-  ("text-align", "center"),
-  ("font-size", "20pt")
-  ]] [ text "Logtales" ]
+  span [
+    Html.Attributes.style [
+      ("float", "right")
+    , ("font-size", "1rem")
+    , ("text-transform", "uppercase")
+    , ("margin-right", "20px")
+    , ("margin-left", "20px")
+    ]
+  ] [ text "Logtales" ]
 
 stylesheet: Html msg
 stylesheet =
