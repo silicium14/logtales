@@ -141,12 +141,24 @@ update msg model =
         Cmd.none
       )
     Types.SelectEvent event ->
-      (
-        { model | selected_event = event },
-        Cmd.none
+      ( { model | selected_event = event }
+      , Cmd.none
       )
-    Types.SliderChange ->
-      (model, Cmd.none)
+    Types.SliderChange value ->
+      let
+        center = (value |> String.toFloat |> Result.withDefault 0.0)*Time.second
+        width = 30*Time.minute
+        start = (center - width/2) |> Date.fromTime
+        end   = (center + width/2) |> Date.fromTime
+      in
+        (
+          { model
+          | info = "Slider change"
+          , start = start
+          , end   = end
+          }
+        , Data.getNewData start end
+        )
 
 -- VIEW
 view: Model -> Html Types.Msg
@@ -174,16 +186,20 @@ view model =
       model.plot.series
       model.plot.data
     , br [] []
-    -- , div [
-    --   Html.Attributes.style [
-    --     ("text-align", "center")
-    --   ]
-    -- ] [
-    --   input [
-    --     Html.Attributes.type_ "range"
-    --   , Html.Attributes.style [ ("width", "85%") ]
-    --   ] []
-    -- ]
+    , div [
+      Html.Attributes.style [
+        ("text-align", "center")
+      ]
+    ] [
+      input [
+        Html.Attributes.type_ "range"
+      , Html.Attributes.attribute "step" "any"
+      , Html.Attributes.attribute "min" (model.range.start |> Date.toTime |> Time.inSeconds |> toString)
+      , Html.Attributes.attribute "max" (model.range.end   |> Date.toTime |> Time.inSeconds |> toString)
+      , Html.Attributes.style [ ("width", "88%") ]
+      , Html.Events.onInput (\value -> Types.SliderChange value)
+      ] []
+    ]
     , br [] []
     , div [ Html.Attributes.style [("min-height", "100px"), ("max-width", "100%")] ] [ text (displayEvent model.hover) ]
   ]

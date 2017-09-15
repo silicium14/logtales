@@ -17,7 +17,7 @@ Note: this resets the existing events database and retrieves Elixir backend depe
 
 ## How to use
 - Configure the backend (see Configure section)
-- Get backend dependencies with `cd back; mix deps.get; cd ..` (This unnecessary if `bin/demo.bash` was run previously)
+- Get backend dependencies with `cd back; mix deps.get; cd ..` (This is unnecessary if `bin/demo.bash` was run previously)
 - Load log file into database with `bin/load.bash`
 - Start the backend and the frontend with `bin/run.bash`
 - Open http://localhost:8000
