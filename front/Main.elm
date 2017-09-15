@@ -55,7 +55,7 @@ init =
   in
     (
       { events = events
-      , info = ""
+      , info = "Fetching range"
       , start = range_start
       , end = range_start
       , hover = Nothing
@@ -70,7 +70,7 @@ init =
       }
       , labels = True
       }
-    , Cmd.none
+    , Data.fetchRange
     )
 
 
@@ -171,12 +171,6 @@ view model =
     , button [ Html.Events.onClick Types.ToggleLabels ] [ text "Toggle labels" ]
     , text model.info
     , br [] []
-    , text <| String.concat
-    [ "Available range: "
-      , Date.Format.format "%d/%m/%Y %H:%M:%S" model.range.start
-      , " - "
-      , Date.Format.format "%d/%m/%Y %H:%M:%S" model.range.end
-    ]
     , Plot.viewSeriesCustom
       ( MyPlot.plotCustomizations
         model.plot.items_ys
@@ -186,19 +180,18 @@ view model =
       model.plot.series
       model.plot.data
     , br [] []
-    , div [
-      Html.Attributes.style [
-        ("text-align", "center")
-      ]
-    ] [
+    , div [Html.Attributes.style [("width", "88%"), ("margin", "0 auto")]] [
       input [
         Html.Attributes.type_ "range"
       , Html.Attributes.attribute "step" "any"
       , Html.Attributes.attribute "min" (model.range.start |> Date.toTime |> Time.inSeconds |> toString)
       , Html.Attributes.attribute "max" (model.range.end   |> Date.toTime |> Time.inSeconds |> toString)
-      , Html.Attributes.style [ ("width", "88%") ]
+      , Html.Attributes.style [ ("width", "100%") ]
       , Html.Events.onInput (\value -> Types.SliderChange value)
       ] []
+    , br [] []
+    , span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
+    , span [Html.Attributes.style [("float", "right")]] [model.range.end   |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
     ]
     , br [] []
     , div [ Html.Attributes.style [("min-height", "100px"), ("max-width", "100%")] ] [ text (displayEvent model.hover) ]
@@ -242,10 +235,11 @@ subscriptions : Model -> Sub Types.Msg
 subscriptions model =
     Sub.none
 
--- FUNCTION
+-- FUNCTIONS
 add: Date.Date -> Time.Time -> Date.Date
 add date time =
   Date.fromTime (
     (Date.toTime date)
     + (Time.inMilliseconds time)
   )
+
