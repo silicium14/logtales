@@ -27,6 +27,7 @@ type alias Model =
   , end: Date.Date -- Currently plotted range of events end
   , hover: (Maybe Types.Event) -- Event that is being hovered on the plot
   , selected_event: (Maybe Types.Event) -- Event that has been clicked on the plot
+  , slider_position: Date.Date -- Date corresponding to the current slider position, it is also the middle of the range of display events
   , range: Types.Range -- Available date range of events from backend
   , plot: MyPlot.MyPlot_ -- Plot data
   , labels: Bool -- Items labels displayed or not
@@ -62,6 +63,7 @@ init =
       , hover = Nothing
       , selected_event = Nothing
       , range = { start = range_start, end = range_start}
+      , slider_position = range_start
       , plot = {
         data = plot_data
       , series = series
@@ -157,13 +159,15 @@ update msg model =
           | info = "Fetching events"
           , start = start
           , end   = end
+          , slider_position = value |> String.toFloat |> Result.withDefault 0.0 |> (*) Time.second |> Date.fromTime
           }
         , Data.getNewData start end
         )
     Types.SliderMove value ->
       (
         { model
-        | info = value |> String.toFloat |> Result.withDefault 0.0 |> (*) Time.second |> Date.fromTime |> toString}
+        | slider_position = value |> String.toFloat |> Result.withDefault 0.0 |> (*) Time.second |> Date.fromTime
+        }
       , Cmd.none
       )
 
@@ -178,9 +182,10 @@ view model =
     , button [ Html.Events.onClick Types.ToggleLabels ] [ text "Toggle labels" ]
     , text model.info
     , br [] []
-    , div [Html.Attributes.style [("width", "88%"), ("margin", "0 auto")]] [
+    , div [Html.Attributes.style [("width", "88%"), ("margin", "0 auto"), ("text-align", "center")]] [
       span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
-      , span [Html.Attributes.style [("float", "right")]] [model.range.end   |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
+      , span [] [model.slider_position |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
+      , span [Html.Attributes.style [("float", "right")]] [model.range.end |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
       , br [] []
       , input [
         Html.Attributes.type_ "range"
@@ -246,8 +251,4 @@ subscriptions model =
 -- FUNCTIONS
 add: Date.Date -> Time.Time -> Date.Date
 add date time =
-  Date.fromTime (
-    (Date.toTime date)
-    + (Time.inMilliseconds time)
-  )
-
+  date |> Date.toTime |> (+) time |> Date.fromTime
