@@ -1,6 +1,7 @@
 import Html exposing (..)
 import Html.Events
 import Html.Attributes
+import Json.Decode
 import Plot
 import Date
 import Date.Format
@@ -80,7 +81,7 @@ update msg model =
   case msg of
     Types.Fetch ->
       (
-        { model | info = "Fetching data" }
+        { model | info = "Fetching events" }
         , Data.getNewData model.start model.end
       )
     Types.NewData (Ok result) ->
@@ -103,7 +104,7 @@ update msg model =
         )
     Types.NewData (Err error) ->
       (
-        { model | info = "Error while fetching data: " ++ toString(error) }
+        { model | info = "Error while fetching events: " ++ toString(error) }
         , Cmd.none
       )
     Types.FetchRange ->
@@ -144,7 +145,7 @@ update msg model =
       ( { model | selected_event = event }
       , Cmd.none
       )
-    Types.SliderChange value ->
+    Types.SliderCommit value ->
       let
         center = (value |> String.toFloat |> Result.withDefault 0.0)*Time.second
         width = 30*Time.minute
@@ -153,12 +154,18 @@ update msg model =
       in
         (
           { model
-          | info = "Slider change"
+          | info = "Fetching events"
           , start = start
           , end   = end
           }
         , Data.getNewData start end
         )
+    Types.SliderMove value ->
+      (
+        { model
+        | info = value |> String.toFloat |> Result.withDefault 0.0 |> (*) Time.second |> Date.fromTime |> toString}
+      , Cmd.none
+      )
 
 -- VIEW
 view: Model -> Html Types.Msg
@@ -166,10 +173,25 @@ view model =
   div [] [
     stylesheet
     , title
-    , button [ Html.Events.onClick Types.FetchRange ] [ text "Fetch range" ]
-    , button [ Html.Events.onClick Types.Fetch ] [ text "Fetch Data" ]
+    , button [ Html.Events.onClick Types.FetchRange ] [ text "Refresh range" ]
+    , button [ Html.Events.onClick Types.Fetch ] [ text "Refresh events" ]
     , button [ Html.Events.onClick Types.ToggleLabels ] [ text "Toggle labels" ]
     , text model.info
+    , br [] []
+    , div [Html.Attributes.style [("width", "88%"), ("margin", "0 auto")]] [
+      span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
+      , span [Html.Attributes.style [("float", "right")]] [model.range.end   |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
+      , br [] []
+      , input [
+        Html.Attributes.type_ "range"
+      , Html.Attributes.attribute "step" "any"
+      , Html.Attributes.attribute "min" (model.range.start |> Date.toTime |> Time.inSeconds |> toString)
+      , Html.Attributes.attribute "max" (model.range.end   |> Date.toTime |> Time.inSeconds |> toString)
+      , Html.Attributes.style [ ("width", "100%") ]
+      , Html.Events.on "change" (Json.Decode.map Types.SliderCommit Html.Events.targetValue)
+      , Html.Events.on "input"  (Json.Decode.map Types.SliderMove Html.Events.targetValue)
+      ] []
+    ]
     , br [] []
     , Plot.viewSeriesCustom
       ( MyPlot.plotCustomizations
@@ -179,20 +201,6 @@ view model =
         model.plot.end_date )
       model.plot.series
       model.plot.data
-    , br [] []
-    , div [Html.Attributes.style [("width", "88%"), ("margin", "0 auto")]] [
-      input [
-        Html.Attributes.type_ "range"
-      , Html.Attributes.attribute "step" "any"
-      , Html.Attributes.attribute "min" (model.range.start |> Date.toTime |> Time.inSeconds |> toString)
-      , Html.Attributes.attribute "max" (model.range.end   |> Date.toTime |> Time.inSeconds |> toString)
-      , Html.Attributes.style [ ("width", "100%") ]
-      , Html.Events.onInput (\value -> Types.SliderChange value)
-      ] []
-    , br [] []
-    , span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
-    , span [Html.Attributes.style [("float", "right")]] [model.range.end   |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
-    ]
     , br [] []
     , div [ Html.Attributes.style [("min-height", "100px"), ("max-width", "100%")] ] [ text (displayEvent model.hover) ]
   ]

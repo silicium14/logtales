@@ -23,4 +23,5 @@ type Msg =
   | ToggleLabels
   | Hover (Maybe Event)
   | SelectEvent (Maybe Event)
-  | SliderChange String
+  | SliderMove String
+  | SliderCommit String
