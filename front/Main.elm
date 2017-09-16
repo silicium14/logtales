@@ -1,6 +1,7 @@
 import Html exposing (..)
 import Html.Events
 import Html.Attributes
+import Json.Decode
 import Plot
 import Date
 import Date.Format
@@ -26,6 +27,7 @@ type alias Model =
   , end: Date.Date -- Currently plotted range of events end
   , hover: (Maybe Types.Event) -- Event that is being hovered on the plot
   , selected_event: (Maybe Types.Event) -- Event that has been clicked on the plot
+  , slider_position: Date.Date -- Date corresponding to the current slider position, it is also the middle of the range of display events
   , range: Types.Range -- Available date range of events from backend
   , plot: MyPlot.MyPlot_ -- Plot data
   , labels: Bool -- Items labels displayed or not
@@ -55,12 +57,13 @@ init =
   in
     (
       { events = events
-      , info = ""
+      , info = "Fetching range"
       , start = range_start
       , end = range_start
       , hover = Nothing
       , selected_event = Nothing
       , range = { start = range_start, end = range_start}
+      , slider_position = range_start
       , plot = {
         data = plot_data
       , series = series
@@ -70,7 +73,7 @@ init =
       }
       , labels = True
       }
-    , Cmd.none
+    , Data.fetchRange
     )
 
 
@@ -80,7 +83,7 @@ update msg model =
   case msg of
     Types.Fetch ->
       (
-        { model | info = "Fetching data" }
+        { model | info = "Fetching events" }
         , Data.getNewData model.start model.end
       )
     Types.NewData (Ok result) ->
@@ -103,7 +106,7 @@ update msg model =
         )
     Types.NewData (Err error) ->
       (
-        { model | info = "Error while fetching data: " ++ toString(error) }
+        { model | info = "Error while fetching events: " ++ toString(error) }
         , Cmd.none
       )
     Types.FetchRange ->
@@ -141,12 +144,32 @@ update msg model =
         Cmd.none
       )
     Types.SelectEvent event ->
-      (
-        { model | selected_event = event },
-        Cmd.none
+      ( { model | selected_event = event }
+      , Cmd.none
       )
-    Types.SliderChange ->
-      (model, Cmd.none)
+    Types.SliderCommit value ->
+      let
+        center = (value |> String.toFloat |> Result.withDefault 0.0)*Time.second
+        width = 30*Time.minute
+        start = (center - width/2) |> Date.fromTime
+        end   = (center + width/2) |> Date.fromTime
+      in
+        (
+          { model
+          | info = "Fetching events"
+          , start = start
+          , end   = end
+          , slider_position = value |> String.toFloat |> Result.withDefault 0.0 |> (*) Time.second |> Date.fromTime
+          }
+        , Data.getNewData start end
+        )
+    Types.SliderMove value ->
+      (
+        { model
+        | slider_position = value |> String.toFloat |> Result.withDefault 0.0 |> (*) Time.second |> Date.fromTime
+        }
+      , Cmd.none
+      )
 
 -- VIEW
 view: Model -> Html Types.Msg
@@ -154,17 +177,27 @@ view model =
   div [] [
     stylesheet
     , title
-    , button [ Html.Events.onClick Types.FetchRange ] [ text "Fetch range" ]
-    , button [ Html.Events.onClick Types.Fetch ] [ text "Fetch Data" ]
+    , button [ Html.Events.onClick Types.FetchRange ] [ text "Refresh range" ]
+    , button [ Html.Events.onClick Types.Fetch ] [ text "Refresh events" ]
     , button [ Html.Events.onClick Types.ToggleLabels ] [ text "Toggle labels" ]
     , text model.info
     , br [] []
-    , text <| String.concat
-    [ "Available range: "
-      , Date.Format.format "%d/%m/%Y %H:%M:%S" model.range.start
-      , " - "
-      , Date.Format.format "%d/%m/%Y %H:%M:%S" model.range.end
+    , div [Html.Attributes.style [("width", "88%"), ("margin", "0 auto"), ("text-align", "center")]] [
+      span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
+      , span [] [model.slider_position |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
+      , span [Html.Attributes.style [("float", "right")]] [model.range.end |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
+      , br [] []
+      , input [
+        Html.Attributes.type_ "range"
+      , Html.Attributes.attribute "step" "any"
+      , Html.Attributes.attribute "min" (model.range.start |> Date.toTime |> Time.inSeconds |> toString)
+      , Html.Attributes.attribute "max" (model.range.end   |> Date.toTime |> Time.inSeconds |> toString)
+      , Html.Attributes.style [ ("width", "100%") ]
+      , Html.Events.on "change" (Json.Decode.map Types.SliderCommit Html.Events.targetValue)
+      , Html.Events.on "input"  (Json.Decode.map Types.SliderMove Html.Events.targetValue)
+      ] []
     ]
+    , br [] []
     , Plot.viewSeriesCustom
       ( MyPlot.plotCustomizations
         model.plot.items_ys
@@ -173,17 +206,6 @@ view model =
         model.plot.end_date )
       model.plot.series
       model.plot.data
-    , br [] []
-    -- , div [
-    --   Html.Attributes.style [
-    --     ("text-align", "center")
-    --   ]
-    -- ] [
-    --   input [
-    --     Html.Attributes.type_ "range"
-    --   , Html.Attributes.style [ ("width", "85%") ]
-    --   ] []
-    -- ]
     , br [] []
     , div [ Html.Attributes.style [("min-height", "100px"), ("max-width", "100%")] ] [ text (displayEvent model.hover) ]
   ]
@@ -226,10 +248,7 @@ subscriptions : Model -> Sub Types.Msg
 subscriptions model =
     Sub.none
 
--- FUNCTION
+-- FUNCTIONS
 add: Date.Date -> Time.Time -> Date.Date
 add date time =
-  Date.fromTime (
-    (Date.toTime date)
-    + (Time.inMilliseconds time)
-  )
+  date |> Date.toTime |> (+) time |> Date.fromTime
