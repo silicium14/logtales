@@ -26,7 +26,6 @@ type alias Model =
   , start: Date.Date -- Currently plotted range of events start
   , end: Date.Date -- Currently plotted range of events end
   , hover: (Maybe Types.Event) -- Event that is being hovered on the plot
-  , selected_event: (Maybe Types.Event) -- Event that has been clicked on the plot
   , slider_position: Date.Date -- Date corresponding to the current slider position, it is also the middle of the range of display events
   , range: Types.Range -- Available date range of events from backend
   , plot: MyPlot.MyPlot_ -- Plot data
@@ -39,16 +38,16 @@ init : (Model, Cmd Types.Msg)
 init =
   let
     events =
-      [ { item = "Dragon", date = Date.fromTime (0.0*Time.second), content = "visits castle" }
-      , { item = "Princess", date = Date.fromTime (1.0*Time.second), content = "kidnapped" }
-      , { item = "Knight",  date = Date.fromTime (2.0*Time.second), content = "starts journey" }
-      , { item = "Knight",  date = Date.fromTime (4.0*Time.second), content = "fights dragon" }
-      , { item = "Dragon",  date = Date.fromTime (4.5*Time.second), content = "hurts knight" }
+      [ { item = "Dragon",    date = Date.fromTime (0.0*Time.second), content = "visits castle" }
+      , { item = "Princess",  date = Date.fromTime (1.0*Time.second), content = "kidnapped" }
+      , { item = "Knight",    date = Date.fromTime (2.0*Time.second), content = "starts journey" }
+      , { item = "Knight",    date = Date.fromTime (4.0*Time.second), content = "fights dragon" }
+      , { item = "Dragon",    date = Date.fromTime (4.5*Time.second), content = "hurts knight" }
       , { item = "Princess",  date = Date.fromTime (4.7*Time.second), content = "afraid" }
-      , { item = "Dragon",  date = Date.fromTime (6.0*Time.second), content = "dies" }
-      , { item = "Knight",  date = Date.fromTime (6.5*Time.second), content = "returns" }
+      , { item = "Dragon",    date = Date.fromTime (6.0*Time.second), content = "dies" }
+      , { item = "Knight",    date = Date.fromTime (6.5*Time.second), content = "returns" }
       , { item = "Princess",  date = Date.fromTime (6.5*Time.second), content = "returns" }
-      , { item = "Knight",  date = Date.fromTime (8.0*Time.second), content = "back in the castle" }
+      , { item = "Knight",    date = Date.fromTime (8.0*Time.second), content = "back in the castle" }
       , { item = "Princess",  date = Date.fromTime (8.0*Time.second), content = "back in the castle" }
       ]
     range_start = Date.fromTime 0.0
@@ -61,7 +60,6 @@ init =
       , start = range_start
       , end = range_start
       , hover = Nothing
-      , selected_event = Nothing
       , range = { start = range_start, end = range_start}
       , slider_position = range_start
       , plot = {
@@ -142,10 +140,6 @@ update msg model =
       (
         { model | hover = hover },
         Cmd.none
-      )
-    Types.SelectEvent event ->
-      ( { model | selected_event = event }
-      , Cmd.none
       )
     Types.SliderCommit value ->
       let

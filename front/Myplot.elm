@@ -181,7 +181,6 @@ mypoint event color =
     , Svg.Attributes.opacity "0.2"
     , Svg.Events.onMouseOver (Types.Hover (Just event))
     , Svg.Events.onMouseOut (Types.Hover Nothing)
-    , Svg.Events.onClick (Types.SelectEvent (Just event))
     ]
     []
 

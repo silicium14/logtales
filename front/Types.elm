@@ -22,6 +22,5 @@ type Msg =
   | NewRange (Result Http.Error Range)
   | ToggleLabels
   | Hover (Maybe Event)
-  | SelectEvent (Maybe Event)
   | SliderMove String
   | SliderCommit String
