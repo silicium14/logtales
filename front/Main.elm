@@ -27,6 +27,8 @@ type alias Model =
   , end: Date.Date -- Currently plotted range of events end
   , hover: (Maybe Types.Event) -- Event that is being hovered on the plot
   , slider_position: Date.Date -- Date corresponding to the current slider position, it is also the middle of the range of display events
+  , range_width_value: Int  -- FIXME The width of the time range around the slider position
+  , range_width_unit: Types.RangeWidthUnit -- TODO
   , range: Types.Range -- Available date range of events from backend
   , plot: MyPlot.MyPlot_ -- Plot data
   , labels: Bool -- Items labels displayed or not
@@ -62,6 +64,8 @@ init =
       , hover = Nothing
       , range = { start = range_start, end = range_start}
       , slider_position = range_start
+      , range_width_value = 1
+      , range_width_unit = Types.Hours
       , plot = {
         data = plot_data
       , series = series
@@ -141,27 +145,46 @@ update msg model =
         { model | hover = hover },
         Cmd.none
       )
+    Types.SliderMove value ->
+      (
+        { model
+        | slider_position = value
+        }
+      , Cmd.none
+      )
     Types.SliderCommit value ->
       let
-        center = (value |> String.toFloat |> Result.withDefault 0.0)*Time.second
-        width = 30*Time.minute
-        start = (center - width/2) |> Date.fromTime
-        end   = (center + width/2) |> Date.fromTime
+        (start, end) = compute_range
+          value
+          (range_width_to_time model.range_width_value model.range_width_unit)
       in
         (
           { model
           | info = "Fetching events"
           , start = start
           , end   = end
-          , slider_position = value |> String.toFloat |> Result.withDefault 0.0 |> (*) Time.second |> Date.fromTime
+          , slider_position = value
           }
         , Data.getNewData start end
         )
-    Types.SliderMove value ->
+    Types.RangeWidthCommit result ->
+      case result of
+        Ok value ->
+          let
+            (start, end) = compute_range model.slider_position (range_width_to_time value model.range_width_unit)
+          in
       (
         { model
-        | slider_position = value |> String.toFloat |> Result.withDefault 0.0 |> (*) Time.second |> Date.fromTime
+              | range_width_value = value
+              , start = start
+              , end = end
+              , info = "Fetching events"
         }
+            , Data.getNewData start end
+            )
+        Err error ->
+          (
+            {model | info = "The range width invalid because I " ++ error }
       , Cmd.none
       )
 
@@ -177,9 +200,15 @@ view model =
     , text model.info
     , br [] []
     , div [Html.Attributes.style [("width", "88%"), ("margin", "0 auto"), ("text-align", "center")]] [
-      span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
-      , span [] [model.slider_position |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
-      , span [Html.Attributes.style [("float", "right")]] [model.range.end |> Date.Format.format "%d/%m/%Y %H:%M:%S" |> text]
+      span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format date_format |> text]
+      , span []
+        [ range_width_value_edit model.range_width_value
+        , text " "
+        , range_width_unit_edit model.range_width_unit
+        , text " around "
+        , model.slider_position |> Date.Format.format date_format |> text
+        ]
+      , span [Html.Attributes.style [("float", "right")]] [model.range.end |> Date.Format.format date_format |> text]
       , br [] []
       , input [
         Html.Attributes.type_ "range"
@@ -187,8 +216,14 @@ view model =
       , Html.Attributes.attribute "min" (model.range.start |> Date.toTime |> Time.inSeconds |> toString)
       , Html.Attributes.attribute "max" (model.range.end   |> Date.toTime |> Time.inSeconds |> toString)
       , Html.Attributes.style [ ("width", "100%") ]
-      , Html.Events.on "change" (Json.Decode.map Types.SliderCommit Html.Events.targetValue)
-      , Html.Events.on "input"  (Json.Decode.map Types.SliderMove Html.Events.targetValue)
+      , Html.Events.on "change"
+        (Json.Decode.map
+          (String.toFloat >> Result.withDefault 0.0 >> (*) Time.second >> Date.fromTime >> Types.SliderCommit)
+          Html.Events.targetValue)
+      , Html.Events.on "input"
+        (Json.Decode.map
+          (String.toFloat >> Result.withDefault 0.0 >> (*) Time.second >> Date.fromTime >> Types.SliderMove)
+          Html.Events.targetValue)
       ] []
     ]
     , br [] []
@@ -246,3 +281,44 @@ subscriptions model =
 add: Date.Date -> Time.Time -> Date.Date
 add date time =
   date |> Date.toTime |> (+) time |> Date.fromTime
+
+range_width_value_edit: Int -> Html Types.Msg
+range_width_value_edit value =
+  input
+    [ Html.Attributes.style [("cursor", "pointer"), ("background", "inherit"), ("padding", "0"), ("text-align", "right")]
+    , Html.Attributes.size 1
+    , value |> toString |> Html.Attributes.value
+    , Html.Events.on "change" (Json.Decode.map (String.toInt >> Types.RangeWidthCommit) Html.Events.targetValue)
+    ] []
+
+range_width_unit_edit: Types.RangeWidthUnit -> Html Types.Msg
+range_width_unit_edit unit =
+  text "hours" -- TODO
+
+range_width_to_time: Int -> Types.RangeWidthUnit -> Time.Time
+range_width_to_time value unit =
+  let
+    time_unit = case unit of
+      Types.Days ->
+        24*Time.hour
+      Types.Hours ->
+        Time.hour
+      Types.Minutes ->
+        Time.minute
+      Types.Seconds ->
+        Time.second
+  in
+    toFloat(value) * time_unit
+
+date_format: String
+date_format = "%Y/%m/%d %H:%M:%S"
+
+compute_range: Date.Date -> Time.Time -> (Date.Date, Date.Date)
+compute_range center width =
+  let
+      center_time = center |> Date.toTime
+  in
+    (
+      (center_time - width/2) |> Date.fromTime
+    , (center_time + width/2) |> Date.fromTime
+    )

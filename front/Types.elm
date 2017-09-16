@@ -14,6 +14,8 @@ type alias Event =
 type alias Range =
   { start:  Date.Date, end: Date.Date }
 
+type RangeWidthUnit = Seconds | Minutes | Hours | Days
+
 -- MESSAGES
 type Msg =
   Fetch
@@ -22,5 +24,6 @@ type Msg =
   | NewRange (Result Http.Error Range)
   | ToggleLabels
   | Hover (Maybe Event)
-  | SliderMove String
-  | SliderCommit String
+  | SliderMove Date.Date
+  | SliderCommit Date.Date
+  | RangeWidthCommit (Result String Int)
