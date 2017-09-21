@@ -26,4 +26,6 @@ type Msg =
   | Hover (Maybe Event)
   | SliderMove Date.Date
   | SliderCommit Date.Date
+  | RangeWidthEdit String
   | RangeWidthCommit (Result String Int)
+  | RangeUnitCommit RangeWidthUnit

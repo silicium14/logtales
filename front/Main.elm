@@ -27,8 +27,9 @@ type alias Model =
   , end: Date.Date -- Currently plotted range of events end
   , hover: (Maybe Types.Event) -- Event that is being hovered on the plot
   , slider_position: Date.Date -- Date corresponding to the current slider position, it is also the middle of the range of display events
-  , range_width_value: Int  -- FIXME The width of the time range around the slider position
-  , range_width_unit: Types.RangeWidthUnit -- TODO
+  , range_width_value: Int  -- The width of the time range around the slider position. Expressed as an positive integer in the unit of the range.
+  , range_width_edit_value: String -- The current value during edition of the range width
+  , range_width_unit: Types.RangeWidthUnit -- The unit associated with the range width value
   , range: Types.Range -- Available date range of events from backend
   , plot: MyPlot.MyPlot_ -- Plot data
   , labels: Bool -- Items labels displayed or not
@@ -65,6 +66,7 @@ init =
       , range = { start = range_start, end = range_start}
       , slider_position = range_start
       , range_width_value = 1
+      , range_width_edit_value = "1"
       , range_width_unit = Types.Hours
       , plot = {
         data = plot_data
@@ -167,6 +169,12 @@ update msg model =
           }
         , Data.getNewData start end
         )
+    Types.RangeWidthEdit edit_value ->
+      (
+        { model | range_width_edit_value = edit_value }
+      , Cmd.none
+      )
+
     Types.RangeWidthCommit result ->
       case result of
         Ok value ->
@@ -184,9 +192,25 @@ update msg model =
             )
         Err error ->
           (
-            {model | info = "The range width invalid because I " ++ error }
+            { model
+            | info = error
+            , range_width_edit_value = model.range_width_value |> toString
+            }
       , Cmd.none
       )
+    Types.RangeUnitCommit unit ->
+      let
+        (start, end) = compute_range model.slider_position (range_width_to_time model.range_width_value unit)
+      in  
+        (
+          { model
+          | range_width_unit = unit
+          , start = start
+          , end = end
+          , info = "Fetching events"
+          }
+        , Data.getNewData start end
+        )
 
 -- VIEW
 view: Model -> Html Types.Msg
@@ -202,9 +226,9 @@ view model =
     , div [Html.Attributes.style [("width", "88%"), ("margin", "0 auto"), ("text-align", "center")]] [
       span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format date_format |> text]
       , span []
-        [ range_width_value_edit model.range_width_value
+        [ range_width_value_edit model.range_width_value model.range_width_edit_value
         , text " "
-        , range_width_unit_edit model.range_width_unit
+        , range_width_unit_edit model.range_width_unit model.range_width_value
         , text " around "
         , model.slider_position |> Date.Format.format date_format |> text
         ]
@@ -282,18 +306,66 @@ add: Date.Date -> Time.Time -> Date.Date
 add date time =
   date |> Date.toTime |> (+) time |> Date.fromTime
 
-range_width_value_edit: Int -> Html Types.Msg
-range_width_value_edit value =
+range_width_value_edit: Int -> String -> Html Types.Msg
+range_width_value_edit value edit_value =
   input
-    [ Html.Attributes.style [("cursor", "pointer"), ("background", "inherit"), ("padding", "0"), ("text-align", "right")]
-    , Html.Attributes.size 1
-    , value |> toString |> Html.Attributes.value
+    [ Html.Attributes.style [
+        ("cursor", "pointer")
+      , ("background", "inherit")
+      , ("padding", "0.5% 1%")
+      , ("border", "1px solid #ccc")
+      , ("text-align", "center")]
+    , Html.Attributes.type_ "text"
+    , Html.Attributes.value edit_value
+    , edit_value |> String.length |> max 1 |> Html.Attributes.size
     , Html.Events.on "change" (Json.Decode.map (String.toInt >> Types.RangeWidthCommit) Html.Events.targetValue)
+    , Html.Events.on "input" (Json.Decode.map Types.RangeWidthEdit Html.Events.targetValue)
     ] []
 
-range_width_unit_edit: Types.RangeWidthUnit -> Html Types.Msg
-range_width_unit_edit unit =
-  text "hours" -- TODO
+unitDecoder : String -> Types.RangeWidthUnit
+unitDecoder str =
+  case str of
+    "Seconds" ->
+        Types.Seconds
+    "Minutes" ->
+        Types.Minutes
+    "Hours" ->
+        Types.Hours
+    "Days" ->
+        Types.Days
+    anythingElse ->
+        Types.Seconds
+
+unitToString: Bool -> Types.RangeWidthUnit -> String
+unitToString singular unit =
+  let
+    result = unit |> toString
+  in
+    if singular then
+      result |> String.dropRight 1
+    else
+      result
+
+
+range_width_unit_edit: Types.RangeWidthUnit -> Int -> Html Types.Msg
+range_width_unit_edit current_unit current_value =
+  select
+    [ Html.Attributes.style [
+        ("cursor", "pointer")
+      , ("background", "inherit")
+      , ("appearance", "none")
+      , ("padding", "0.5% 1%")
+      , ("text-align", "center")
+      , ("-webkit-appearance", "none")
+      , ("-moz-appearance", "none")]
+    , Html.Events.on "change" (Json.Decode.map (unitDecoder >> Types.RangeUnitCommit) Html.Events.targetValue)
+    ] (List.map
+      (\unit -> node "option"
+        [ unit |> toString |> Html.Attributes.value
+        , Html.Attributes.selected (unit == current_unit)
+        , Html.Attributes.style [("text-align", "center")] ]
+        [unit |> unitToString (current_value <= 1) |> String.toLower |> text])
+      [Types.Seconds, Types.Minutes, Types.Hours, Types.Days])
 
 range_width_to_time: Int -> Types.RangeWidthUnit -> Time.Time
 range_width_to_time value unit =
