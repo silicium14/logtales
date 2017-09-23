@@ -8,9 +8,12 @@ config :logger, backends: [:console]
 # date_format: the Timex format to use to parse dates captured by the `regex`.
 #   see Timex.Format.DateTime.Formatters.Default
 config :logtales,
+  # file: "../tmp/100k_alt.log",
+  # regex: ~r/^\[(?<date>\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d)\] \[(?<item>[^\]]+)\] (?<content>.*)/,
+  # date_format: "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"
   file: "nasa_ksc_www_Jul95_subset.log",
   regex: ~r/^.*\[(?<date>[^\s]+).*\] (?<content>[^\/]+(?<item>\/[^\/\s]*).*)/,
-  date_format: "{0D}/{Mshort}/{YYYY}:{h24}:{m}:{s}"  
+  date_format: "{0D}/{Mshort}/{YYYY}:{h24}:{m}:{s}"
 
 config :mnesia,
   dump_log_write_threshold: 100000,
