@@ -68,12 +68,13 @@ defmodule Logtales.Server do
 
     def restart do
       Plug.Adapters.Cowboy.shutdown __MODULE__.HTTP
-      :ok = :mnesia.start
-      Plug.Adapters.Cowboy.http __MODULE__, []
+      start()
     end
 
     def start do
       :ok = :mnesia.start
-      Plug.Adapters.Cowboy.http __MODULE__, []
+      return_value = Plug.Adapters.Cowboy.http __MODULE__, []
+      Logger.debug "Server running on port 4000"
+      return_value
     end
   end
