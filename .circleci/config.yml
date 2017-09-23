@@ -1,0 +1,8 @@
+version: 2
+jobs:
+   build:
+     docker:
+       - image: circleci/elixir:1.5.1
+     steps:
+       - checkout
+       - run: echo "Hello, world!"
