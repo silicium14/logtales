@@ -22,7 +22,7 @@ Note: this resets the existing events database and retrieves Elixir backend depe
 - Start the backend and the frontend with `bin/run.bash`
 - Open http://localhost:8000
 - Click on `Refresh range` to get available date range
-- Use the slider to travel through time
+- Use the slider to travel through time, you can edit the width of the viewed range
 
 ## Configure
 - Set the `file` value in the `:logtales` config in `back/config/config.exs` to the path of your log file
