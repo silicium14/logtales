@@ -5,7 +5,8 @@ defmodule Logtales.Db.Mnesia do
   def resetdb() do
     Logger.debug "resetdb"
     dropdb()
-    createdb()
+    {:atomic, :ok} = createdb()
+    :ok
   end
 
   @doc """
@@ -18,7 +19,6 @@ defmodule Logtales.Db.Mnesia do
   ]
   The only constraint on indexes are uniqueness.
   """
-  @spec load(events :: Flow.t) :: none()
   def load(events) do
     Logger.debug "Loading events into Mnesia database"
     events
@@ -29,6 +29,7 @@ defmodule Logtales.Db.Mnesia do
     Logger.debug "Adding indexes"
     :mnesia.add_table_index Event, :item
     :mnesia.add_table_index Event, :timestamp
+    :ok
   end
 
   def range() do

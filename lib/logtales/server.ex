@@ -1,6 +1,6 @@
 defmodule Logtales.Server do
     @moduledoc """
-    Documentation for Logtales.Server.
+    Application server that serves the front-end and handles requests from it
     """
 
     require Logger

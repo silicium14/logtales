@@ -7,7 +7,8 @@ defmodule Logtales.Mixfile do
       version: "0.1.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      dialyzer: [ plt_add_deps: :transitive ]
     ]
   end
 
@@ -28,7 +29,8 @@ defmodule Logtales.Mixfile do
       {:poison, "~> 3.1"},
       {:flow, "~> 0.12.0"},
       {:timex, "~> 3.1"},
-      {:eye_drops, "~> 1.3"}
+      {:eye_drops, "~> 1.3"},
+      {:dialyxir, "~> 0.5.1", only: [:dev], runtime: false}
     ]
   end
 end
