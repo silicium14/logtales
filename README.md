@@ -57,3 +57,10 @@ mix load
 ```bash
 mix test
 ```
+
+## Recompile front-end on changes (for development)
+There is a mix task that watches the front-end Elm code and recompiles the Elm application when changes are detected.
+This is handy during development.
+```bash
+mix eye_drops
+```
