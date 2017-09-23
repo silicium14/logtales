@@ -15,3 +15,14 @@ config :logtales,
 config :mnesia,
   dump_log_write_threshold: 100000,
   dir: 'mnesia/#{Mix.env}'
+
+config :eye_drops, 
+  tasks: [
+    %{
+      id: :compile_frontend,
+      name: "Compile front-end",
+      run_on_start: false,
+      cmd: "cd front; elm-make Main.elm --yes --warn --output app.html",
+      paths: ["front/*.elm"]
+    }
+  ]

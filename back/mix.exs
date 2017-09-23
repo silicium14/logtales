@@ -27,7 +27,8 @@ defmodule Logtales.Mixfile do
       {:plug, "~> 1.0"},
       {:poison, "~> 3.1"},
       {:flow, "~> 0.12.0"},
-      {:timex, "~> 3.1"}
+      {:timex, "~> 3.1"},
+      {:eye_drops, "~> 1.3"}
     ]
   end
 end

@@ -11,7 +11,7 @@ defmodule Logtales.Server do
     plug :dispatch
   
     get "/" do
-      resp(conn, 200, "API Running")
+      Plug.Conn.send_file(conn, 200, "front/app.html")
     end
   
     get "/events" do
