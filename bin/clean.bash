@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script removes all application generated files
-# included the database
+# included the databases
 
 echo "Cleaning Elixir generated files"
 mix deps.clean --all

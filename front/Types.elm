@@ -1,7 +1,7 @@
 module Types exposing (..)
 
 import Date
-import Http 
+import Http
 
 -- DATA TYPES
 type alias Event =
@@ -18,7 +18,7 @@ type RangeWidthUnit = Seconds | Minutes | Hours | Days
 
 -- MESSAGES
 type Msg =
-  Fetch 
+  Fetch
   | NewData (Result Http.Error (List Event))
   | FetchRange
   | NewRange (Result Http.Error Range)

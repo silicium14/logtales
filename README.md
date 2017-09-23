@@ -40,8 +40,7 @@ The item can be anything meaningful for you to group events when plotting them o
 
 ## Start the application
 ```bash
-# If Elixir dependencies were never retrieved, first do
-mix deps.get
+mix deps.get  # If Elixir dependencies were never retrieved
 bin/run.bash
 ```
 This starts the application at http://localhost:4000.
