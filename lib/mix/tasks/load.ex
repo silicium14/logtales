@@ -4,5 +4,6 @@ defmodule Mix.Tasks.Load do
   @shortdoc "Resets the existing database and reloads log file"
   def run(_args) do
     Logtales.load
+    :mnesia.stop
   end
 end

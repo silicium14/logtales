@@ -11,7 +11,7 @@ defmodule Logtales.Server do
     plug :dispatch
   
     get "/" do
-      resp(conn, 200, "API Running")
+      Plug.Conn.send_file(conn, 200, "front/app.html")
     end
   
     get "/events" do
@@ -68,12 +68,13 @@ defmodule Logtales.Server do
 
     def restart do
       Plug.Adapters.Cowboy.shutdown __MODULE__.HTTP
-      :ok = :mnesia.start
-      Plug.Adapters.Cowboy.http __MODULE__, []
+      start()
     end
 
     def start do
       :ok = :mnesia.start
-      Plug.Adapters.Cowboy.http __MODULE__, []
+      return_value = Plug.Adapters.Cowboy.http __MODULE__, []
+      Logger.debug "Server running on port 4000"
+      return_value
     end
   end
