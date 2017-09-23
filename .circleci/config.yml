@@ -5,4 +5,5 @@ jobs:
        - image: circleci/elixir:1.5.1
      steps:
        - checkout
-       - run: echo "Hello, world!"
+       - run: mix deps.get
+       - run: mix test
