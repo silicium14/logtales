@@ -19,7 +19,7 @@ defmodule MnesiaTest do
     result = Mnesia.events(
       DateTime.from_naive!(~N[2017-01-01 00:00:01], "Etc/UTC"),
       DateTime.from_naive!(~N[2017-01-01 00:00:01], "Etc/UTC")
-    )
+    ) |> Enum.to_list()
 
     ### Assert
     assert result == [event]
@@ -45,7 +45,7 @@ defmodule MnesiaTest do
     result = Mnesia.events(
       DateTime.from_naive!(~N[2017-01-01 00:00:00], "Etc/UTC"),
       DateTime.from_naive!(~N[2017-01-01 10:00:00], "Etc/UTC")
-    )
+    ) |> Enum.to_list()
 
     ### Assert
     assert result == [event_in_range]

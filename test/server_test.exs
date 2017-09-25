@@ -48,7 +48,7 @@ defmodule ServerTest do
     # Act
     conn = 
     conn(:get, query)
-    |> Plug.Conn.assign(:events_function, fn _, _ -> events end)
+    |> Plug.Conn.assign(:events_function, fn _, _ -> Flow.from_enumerable(events) end)
     |> Logtales.Server.call(@router_options)
 
     # Assert

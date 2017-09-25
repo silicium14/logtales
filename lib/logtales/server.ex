@@ -21,8 +21,16 @@ defmodule Logtales.Server do
       Logger.debug "start: #{start}, end: #{end_}"
       events_function = conn.assigns[:events_function] || &Logtales.events/2
       events_function.(start, end_)
-      |> Enum.map(&date_to_unix(&1))
-      |> json_response(conn)
+      |> Flow.map(&date_to_unix(&1))
+      |> Flow.map(&Poison.encode!/1)
+      |> Enum.join(",")
+      |> (fn json -> "[#{json}]" end).()
+      |> (
+        fn data -> resp(
+          Plug.Conn.put_resp_header(conn, "access-control-allow-origin", "*"),
+          200, data
+        ) end
+      ).()
     end
 
     get "/range" do

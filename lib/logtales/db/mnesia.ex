@@ -43,22 +43,20 @@ defmodule Logtales.Db.Mnesia do
   end
 
   def events(start, end_) do
-    {:atomic, values} = :mnesia.transaction(fn ->
-      :mnesia.select(
-        Event,
-        [{
-          {Event, :"$1", :"$2", :"$3", :"$4"},
-          [
-            {:and, 
-            {:">=", :"$2", DateTime.to_unix(start)},
-            {:"=<", :"$2", DateTime.to_unix(end_)}}
-          ],
-          [:"$$"]
-        }]
-        )
-    end)
-    values
-    |> Enum.map(&event_record_to_map/1)
+    :mnesia.dirty_select(
+      Event,
+      [{
+        {Event, :"$1", :"$2", :"$3", :"$4"},
+        [
+          {:and,
+          {:">=", :"$2", DateTime.to_unix(start)},
+          {:"=<", :"$2", DateTime.to_unix(end_)}}
+        ],
+        [:"$$"]
+      }]
+    )
+    |> Flow.from_enumerable(max_demand: 100, min_demand: 50)
+    |> Flow.map(&event_record_to_map/1)
   end
 
   # Supplementary functions that are not part of the behaviour
@@ -68,7 +66,7 @@ defmodule Logtales.Db.Mnesia do
   end
   
   def createdb() do
-    :stopped = :mnesia.stop    
+    :stopped = :mnesia.stop
     :ok = :mnesia.create_schema [node()]
     :ok = :mnesia.start
     {:atomic, :ok} = :mnesia.create_table(
