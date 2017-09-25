@@ -10,7 +10,7 @@ defmodule Logtales do
   @doc """
   Retrieves events that happened between start and end
   """
-  @spec events(start :: DateTime.t, end_ :: DateTime.t, database :: module()) :: Enum.t
+  @spec events(start :: DateTime.t, end_ :: DateTime.t, database :: module()) :: Flow.t
   def events(start, end_, database \\ Logtales.Db.Mnesia) do
     database.events(start, end_)
   end
