@@ -48,7 +48,7 @@ myplot: List Types.Event
         )
 myplot events =
   let
-    unique_items = items events
+    unique_items = sortedItems events
     items_ys = map_ys unique_items
     colors = map_colors unique_items
     axis = 0
@@ -65,11 +65,18 @@ myplot events =
   in
     (items_ys, data, series, Date.fromTime min_, Date.fromTime max_)
 
-items: List Types.Event -> List String
-items events =
+sortedItems: List Types.Event -> List String
+sortedItems events =
   events
-  |> List.map (\e -> e.item)
-  |> List.Extra.unique
+  |> Dict.Extra.groupBy .item
+  |> Dict.toList
+  |> (List.map <| Tuple.mapSecond <| List.map .date)
+  |> (List.map <| Tuple.mapSecond <| List.map Date.toTime)
+  |> (List.map <| Tuple.mapSecond <| List.minimum)
+  |> (List.map <| Tuple.mapSecond <| Maybe.withDefault 0.0)
+  |> List.sortBy Tuple.second
+  |> List.map Tuple.first
+  |> List.reverse
 
 new_toDataPoints
   : (data -> List (Plot.DataPoint msg))
