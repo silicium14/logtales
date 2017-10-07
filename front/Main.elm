@@ -2,7 +2,6 @@ import Html exposing (..)
 import Html.Events
 import Html.Attributes
 import Json.Decode
-import Plot
 import Date
 import Date.Format
 import Time
@@ -10,7 +9,7 @@ import Result
 
 import Data
 import Types
-import MyPlot
+import Plot2
 
 main : Program Never Model Types.Msg
 main =
@@ -31,7 +30,7 @@ type alias Model =
   , range_width_edit_value: String -- The current value during edition of the range width
   , range_width_unit: Types.RangeWidthUnit -- The unit associated with the range width value
   , range: Types.Range -- Available date range of events from backend
-  , plot: MyPlot.MyPlot_ -- Plot data
+  -- , plot: MyPlot.MyPlot_ -- Plot data
   , labels: Bool -- Items labels displayed or not
 }
 
@@ -55,7 +54,7 @@ init =
       ]
     range_start = Date.fromTime 0.0
     range_end = Date.fromTime 0.0
-    (items_ys, plot_data, series, plot_start, plot_end) = MyPlot.myplot events
+    -- (items_ys, plot_data, series, plot_start, plot_end) = MyPlot.myplot events
   in
     (
       { events = events
@@ -68,13 +67,13 @@ init =
       , range_width_value = 1
       , range_width_edit_value = "1"
       , range_width_unit = Types.Hours
-      , plot = {
-        data = plot_data
-      , series = series
-      , items_ys = items_ys
-      , start_date = plot_start
-      , end_date = plot_end
-      }
+      -- , plot = {
+      --     data = plot_data
+      --   , series = series
+      --   , items_ys = items_ys
+      --   , start_date = plot_start
+      --   , end_date = plot_end
+      -- }
       , labels = True
       }
     , Data.fetchRange
@@ -92,19 +91,20 @@ update msg model =
       )
     Types.NewData (Ok result) ->
       let
-        (items_ys, data, series, start_date, end_date) = MyPlot.myplot result
+        -- (items_ys, data, series, start_date, end_date) = MyPlot.myplot result
+        bidon = 0
       in
         (
           { model |
             info = "New data received"
           , events = result
-          , plot = {
-            items_ys = items_ys
-          , data = data
-          , series = series
-          , start_date = start_date
-          , end_date = end_date
-          }
+          -- , plot = {
+          --   items_ys = items_ys
+          -- , data = data
+          -- , series = series
+          -- , start_date = start_date
+          -- , end_date = end_date
+          -- }
           },
           Cmd.none
         )
@@ -251,14 +251,7 @@ view model =
       ] []
     ]
     , br [] []
-    , Plot.viewSeriesCustom
-      ( MyPlot.plotCustomizations
-        model.plot.items_ys
-        model.labels
-        model.plot.start_date
-        model.plot.end_date )
-      model.plot.series
-      model.plot.data
+    , div [] [ Plot2.plot model.events ]
     , br [] []
     , displayEvent model.hover
   ]
