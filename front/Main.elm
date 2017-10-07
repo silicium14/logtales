@@ -260,7 +260,7 @@ view model =
       model.plot.series
       model.plot.data
     , br [] []
-    , div [ Html.Attributes.style [("min-height", "100px"), ("max-width", "100%")] ] [ text (displayEvent model.hover) ]
+    , displayEvent model.hover
   ]
 
 title: Html msg
@@ -285,16 +285,29 @@ stylesheet =
             , Html.Attributes.attribute "href"      "https://cdn.rawgit.com/yegor256/tacit/gh-pages/tacit-0.8.1.min.css"
             ]
         children = []
-    in 
+    in
         node tag attrs children
 
-displayEvent: Maybe Types.Event -> String
+displayEvent: Maybe Types.Event -> Html Types.Msg
 displayEvent hoverEvent =
   case hoverEvent of
     Nothing ->
-      ""
-    Just hoverEvent ->
-      toString hoverEvent
+      div [] []
+    Just event ->
+      span
+        [ Html.Attributes.style
+          [ ("min-height", "100px")
+          , ("max-width", "100%")
+          , ("position", "fixed")
+          , ("bottom", "0")
+          , ("background", "lightgray")
+          , ("border", "1px solid #ccc")
+          , ("border-radius", "3.6px")
+          , ("padding", "0.5% 1%")
+          , ("min-height", "0")
+          ]
+        ]
+        [ event |> toString |> text ]
 
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Types.Msg
