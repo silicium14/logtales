@@ -56,7 +56,6 @@ init =
       ]
     range_start = Date.fromTime 0.0
     range_end = Date.fromTime 0.0
-    -- (items_ys, plot_data, series, plot_start, plot_end) = MyPlot.myplot events
   in
     (
       { events = events
@@ -86,17 +85,13 @@ update msg model =
         , Data.getNewData model.start model.end
       )
     Types.NewData (Ok result) ->
-      let
-        -- (items_ys, data, series, start_date, end_date) = MyPlot.myplot result
-        bidon = 0
-      in
-        (
-          { model |
-            info = "New data received"
-          , events = result
-          },
-          Cmd.none
-        )
+      (
+        { model |
+          info = "New data received"
+        , events = result
+        },
+        Cmd.none
+      )
     Types.NewData (Err error) ->
       (
         { model | info = "Error while fetching events: " ++ toString(error) }
