@@ -2,6 +2,7 @@ module Types exposing (..)
 
 import Date
 import Http
+import Window
 
 -- DATA TYPES
 type alias Event =
@@ -22,10 +23,10 @@ type Msg =
   | NewData (Result Http.Error (List Event))
   | FetchRange
   | NewRange (Result Http.Error Range)
-  | ToggleLabels
   | Hover (Maybe Event)
   | SliderMove Date.Date
   | SliderCommit Date.Date
   | RangeWidthEdit String
   | RangeWidthCommit (Result String Int)
   | RangeUnitCommit RangeWidthUnit
+  | WindowSize Window.Size

@@ -2,15 +2,17 @@ import Html exposing (..)
 import Html.Events
 import Html.Attributes
 import Json.Decode
-import Plot
 import Date
 import Date.Format
 import Time
 import Result
+import Task
+import Window
 
-import Data
+import Common
 import Types
-import MyPlot
+import Data
+import Plot
 
 main : Program Never Model Types.Msg
 main =
@@ -31,10 +33,9 @@ type alias Model =
   , range_width_edit_value: String -- The current value during edition of the range width
   , range_width_unit: Types.RangeWidthUnit -- The unit associated with the range width value
   , range: Types.Range -- Available date range of events from backend
-  , plot: MyPlot.MyPlot_ -- Plot data
   , labels: Bool -- Items labels displayed or not
-}
-
+  , windowSize: Window.Size
+} 
 
 -- MODEL
 init : (Model, Cmd Types.Msg)
@@ -55,7 +56,6 @@ init =
       ]
     range_start = Date.fromTime 0.0
     range_end = Date.fromTime 0.0
-    (items_ys, plot_data, series, plot_start, plot_end) = MyPlot.myplot events
   in
     (
       { events = events
@@ -68,16 +68,10 @@ init =
       , range_width_value = 1
       , range_width_edit_value = "1"
       , range_width_unit = Types.Hours
-      , plot = {
-        data = plot_data
-      , series = series
-      , items_ys = items_ys
-      , start_date = plot_start
-      , end_date = plot_end
-      }
       , labels = True
+      , windowSize = { width = 800, height = 1500 }
       }
-    , Data.fetchRange
+    , Cmd.batch [Data.fetchRange, (Task.perform Types.WindowSize Window.size)]
     )
 
 
@@ -91,23 +85,13 @@ update msg model =
         , Data.getNewData model.start model.end
       )
     Types.NewData (Ok result) ->
-      let
-        (items_ys, data, series, start_date, end_date) = MyPlot.myplot result
-      in
-        (
-          { model |
-            info = "New data received"
-          , events = result
-          , plot = {
-            items_ys = items_ys
-          , data = data
-          , series = series
-          , start_date = start_date
-          , end_date = end_date
-          }
-          },
-          Cmd.none
-        )
+      (
+        { model |
+          info = "New data received"
+        , events = result
+        },
+        Cmd.none
+      )
     Types.NewData (Err error) ->
       (
         { model | info = "Error while fetching events: " ++ toString(error) }
@@ -127,19 +111,12 @@ update msg model =
           { model |
             info = "New range received"
           , range = result
-          , start = add result.end (-0.5*Time.hour)
-          , end = result.end
           }
         , Cmd.none
         )
     Types.NewRange (Err error) ->
       (
         { model | info = "Error while fetching range: " ++ toString(error) }
-      , Cmd.none
-      )
-    Types.ToggleLabels ->
-      (
-        { model | labels = not model.labels }
       , Cmd.none
       )
     Types.Hover hover ->
@@ -211,6 +188,8 @@ update msg model =
           }
         , Data.getNewData start end
         )
+    Types.WindowSize size ->
+      ({ model | windowSize = size }, Cmd.none)
 
 -- VIEW
 view: Model -> Html Types.Msg
@@ -220,19 +199,18 @@ view model =
     , title
     , button [ Html.Events.onClick Types.FetchRange ] [ text "Refresh range" ]
     , button [ Html.Events.onClick Types.Fetch ] [ text "Refresh events" ]
-    , button [ Html.Events.onClick Types.ToggleLabels ] [ text "Toggle labels" ]
     , text model.info
     , br [] []
     , div [Html.Attributes.style [("width", "88%"), ("margin", "0 auto"), ("text-align", "center")]] [
-      span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format date_format |> text]
+      span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format Common.date_format |> text]
       , span []
         [ range_width_value_edit model.range_width_value model.range_width_edit_value
         , text " "
         , range_width_unit_edit model.range_width_unit model.range_width_value
         , text " around "
-        , model.slider_position |> Date.Format.format date_format |> text
+        , model.slider_position |> Date.Format.format Common.date_format |> text
         ]
-      , span [Html.Attributes.style [("float", "right")]] [model.range.end |> Date.Format.format date_format |> text]
+      , span [Html.Attributes.style [("float", "right")]] [model.range.end |> Date.Format.format Common.date_format |> text]
       , br [] []
       , input [
         Html.Attributes.type_ "range"
@@ -251,14 +229,7 @@ view model =
       ] []
     ]
     , br [] []
-    , Plot.viewSeriesCustom
-      ( MyPlot.plotCustomizations
-        model.plot.items_ys
-        model.labels
-        model.plot.start_date
-        model.plot.end_date )
-      model.plot.series
-      model.plot.data
+    , Plot.plot model.windowSize model.events
     , br [] []
     , displayEvent model.hover
   ]
@@ -394,9 +365,6 @@ range_width_to_time value unit =
         Time.second
   in
     toFloat(value) * time_unit
-
-date_format: String
-date_format = "%Y/%m/%d %H:%M:%S"
 
 compute_range: Date.Date -> Time.Time -> (Date.Date, Date.Date)
 compute_range center width =
