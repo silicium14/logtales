@@ -9,8 +9,9 @@ import Result
 import Task
 import Window
 
-import Data
+import Common
 import Types
+import Data
 import Plot
 
 main : Program Never Model Types.Msg
@@ -206,15 +207,15 @@ view model =
     , text model.info
     , br [] []
     , div [Html.Attributes.style [("width", "88%"), ("margin", "0 auto"), ("text-align", "center")]] [
-      span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format date_format |> text]
+      span [Html.Attributes.style [("float", "left")]] [model.range.start |> Date.Format.format Common.date_format |> text]
       , span []
         [ range_width_value_edit model.range_width_value model.range_width_edit_value
         , text " "
         , range_width_unit_edit model.range_width_unit model.range_width_value
         , text " around "
-        , model.slider_position |> Date.Format.format date_format |> text
+        , model.slider_position |> Date.Format.format Common.date_format |> text
         ]
-      , span [Html.Attributes.style [("float", "right")]] [model.range.end |> Date.Format.format date_format |> text]
+      , span [Html.Attributes.style [("float", "right")]] [model.range.end |> Date.Format.format Common.date_format |> text]
       , br [] []
       , input [
         Html.Attributes.type_ "range"
@@ -369,9 +370,6 @@ range_width_to_time value unit =
         Time.second
   in
     toFloat(value) * time_unit
-
-date_format: String
-date_format = "%Y/%m/%d %H:%M:%S"
 
 compute_range: Date.Date -> Time.Time -> (Date.Date, Date.Date)
 compute_range center width =

@@ -1,6 +1,7 @@
 module Plot exposing (..)
 
 import Date
+import Date.Format
 import Dict
 import Dict.Extra
 import Html exposing (..)
@@ -13,6 +14,7 @@ import Visualization.Axis as Axis exposing (defaultOptions)
 import Window
 
 import Types
+import Common
 
 plot: Window.Size -> List Types.Event -> Html Types.Msg
 plot windowSize events =
@@ -111,6 +113,7 @@ xAxis orientation scaleX =
       { defaultOptions
       | orientation = orientation
       , ticks = Just [Tuple.first domain, Tuple.second domain]
+      , tickFormat = Just (Date.Format.format Common.date_format)
       }
       scaleX
 
