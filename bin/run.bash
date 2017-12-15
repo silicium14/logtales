@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# Starts the elixir backend, the elm frontend (elm-reactor)
-# and opens the application URL
+# Compiles the elm frontend and starts the backend server (that serves the frontend)
 
 set -e
 
@@ -11,4 +10,4 @@ elm-make Main.elm --yes --warn --output app.html
 echo "- Finished building front-end"
 cd ..
 
-mix run --no-halt
+yarn start

@@ -17,7 +17,8 @@ Note: this resets the existing events database and retrieves Elixir backend depe
 
 ## How to use
 - Configure the backend (see Configure section)
-- Get dependencies with `mix deps.get` (This is unnecessary if `bin/demo.bash` was run previously)
+- Get elixir dependencies with `mix deps.get` (This is unnecessary if `bin/demo.bash` was run previously)
+- Get node dependencies with `yarn`
 - Load log file into database with `mix load`
 - Start the app with `bin/run.bash`
 - Open http://localhost:4000

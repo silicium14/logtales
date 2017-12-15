@@ -30,7 +30,7 @@ defmodule Logtales.Mixfile do
       {:flow, "~> 0.12.0"},
       {:timex, "~> 3.1"},
       {:eye_drops, "~> 1.3"},
-      {:dialyxir, "~> 0.5.1", only: [:dev], runtime: false}
+      {:dialyxir, "~> 0.5.1", only: [:dev], runtime: false},
     ]
   end
 end

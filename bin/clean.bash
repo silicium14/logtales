@@ -9,3 +9,5 @@ echo "Removing databases"
 rm -r mnesia/*
 echo "Removing Elm generated files"
 rm -r front/elm-stuff
+echo "Removing node generated files"
+rm -r node_modules

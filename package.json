@@ -1,0 +1,14 @@
+{
+  "name": "logtales",
+  "version": "1.0.0",
+  "main": "main.js",
+  "repository": "git@github.com:silicium14/logtales.git",
+  "author": "silicium14 <13800015+silicium14@users.noreply.github.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "NODE_ENV=development electron ./main.js"
+  },
+  "dependencies": {
+    "electron": "^1.7.9"
+  }
+}
