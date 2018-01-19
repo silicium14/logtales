@@ -39,8 +39,7 @@ app.on('ready', () => {
         nodeIntegration: false
     }
   })
-
-  mainWindow.loadURL(`file://${__dirname}/front/app.html`)
+  mainWindow.loadURL(`file://${__dirname}/front/wait_for_backend.html`)
 
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.show()
