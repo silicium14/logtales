@@ -22,7 +22,7 @@ config :eye_drops,
       id: :compile_frontend,
       name: "Compile front-end",
       run_on_start: false,
-      cmd: "cd front; elm-make Main.elm --yes --warn --output app.html",
+      cmd: "cd front; elm-make Main.elm --yes --warn --output main.js",
       paths: ["front/*.elm"]
     }
   ]
