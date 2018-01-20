@@ -81,6 +81,7 @@ defmodule Logtales.Server do
 
     def start do
       :ok = :mnesia.start
+      :ok = :mnesia.wait_for_tables([Event], 5000)
       return_value = Plug.Adapters.Cowboy.http __MODULE__, []
       Logger.debug "Server running on port 4000"
       return_value
