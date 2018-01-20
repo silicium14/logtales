@@ -4,9 +4,7 @@
 # Resets the database, loads the configured log file
 # and starts the application
 
-echo "- Fetching Elixir dependencies"
-mix deps.get
-echo "- Finished fetching Elixir dependencies"
+bin/build.bash
 
 echo "- Parsing log file and loading events into database"
 mix load
