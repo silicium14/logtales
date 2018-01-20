@@ -1,6 +1,9 @@
 use Mix.Config
 
-config :logger, backends: [:console]
+config :logger, backends: [:console, {LoggerFileBackend, :debug}]
+config :logger, :debug,
+  path: "tmp/backend.log",
+  level: :debug
 
 # file: the path of the log file
 # regex: a regex used for parsing and filtering log events.

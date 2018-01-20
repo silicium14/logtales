@@ -31,6 +31,7 @@ defmodule Logtales.Mixfile do
       {:timex, "~> 3.1"},
       {:eye_drops, "~> 1.3"},
       {:dialyxir, "~> 0.5.1", only: [:dev], runtime: false},
+      {:logger_file_backend, "~> 0.0.10"}
     ]
   end
 end
