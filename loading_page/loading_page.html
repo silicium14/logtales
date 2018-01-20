@@ -1,0 +1,68 @@
+<html>
+
+<head>
+  <script>
+    window.nodeRequire = require;
+    delete window.require;
+    delete window.exports;
+    delete window.module;
+  </script>
+  <script type="text/javascript" src="elm.js"></script>
+  <link rel="stylesheet" href="https://cdn.rawgit.com/yegor256/tacit/gh-pages/tacit-css-1.2.7.min.css"/>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    p {
+      margin: 1%;
+      font-size: 1.5rem;
+    }
+    /* Animation from http://tobiasahlin.com/spinkit/, https://github.com/tobiasahlin/SpinKit */
+    #spinner {
+      width: 4rem;
+      height: 4rem;
+      background-color: hotpink;
+
+      border-radius: 100%;
+      -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+      animation: sk-scaleout 1.0s infinite ease-in-out;
+    }
+
+    @-webkit-keyframes sk-scaleout {
+      0% { -webkit-transform: scale(0) }
+      100% {
+        -webkit-transform: scale(1.0);
+        opacity: 0;
+      }
+    }
+
+    @keyframes sk-scaleout {
+      0% {
+        -webkit-transform: scale(0);
+        transform: scale(0);
+      } 100% {
+        -webkit-transform: scale(1.0);
+        transform: scale(1.0);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <p>Logtales is starting</p>
+  <div id="spinner"></div>
+  <div id="poller"></div>
+</body>
+
+<script>
+  Elm.Poller.embed(
+    document.getElementById('poller'),
+    { backend: 'http://localhost:4000', app: nodeRequire('electron').remote.getGlobal('application_path') }
+  );
+</script>
+
+</html>

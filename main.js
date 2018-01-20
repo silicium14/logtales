@@ -4,6 +4,8 @@ let { spawn, spawnSync } = require('child_process')
 let mainWindow = null
 let devMode = process.env.NODE_ENV === 'development'
 
+global.application_path = `file://${__dirname}/front/app.html`
+
 let command = 'mix'
 let args = ['run' , '--no-halt']
 
@@ -27,7 +29,8 @@ app.on('quit', () => {
 })
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
+  // if (process.platform !== 'darwin') app.quit()
+  app.quit()
 })
 
 app.on('ready', () => {
@@ -36,10 +39,10 @@ app.on('ready', () => {
     width: 1024,
     height: 720,
     webPreferences: {
-        nodeIntegration: false
+        nodeIntegration: true
     }
   })
-  mainWindow.loadURL(`file://${__dirname}/front/wait_for_backend.html`)
+  mainWindow.loadURL(`file://${__dirname}/loading_page/loading_page.html`)
 
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.show()
